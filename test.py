@@ -15,12 +15,12 @@ async def on_ready():
 @bot.command()
 async def submit(ctx, movie: str):
     # submits the movie into the system
-    await ctx.send('Movie successfully added '+movie+' added')
+    await ctx.send('['+ctx.message.author.name+'] successfully submitted ['+movie+']!')
 
 @bot.command()
 async def list(ctx):
     # gets the list of current movies
-    result = 'Here are the current list of movies'
+    result = 'Here are the current list of movies\nTest 1\nTest 2\nTest 3'
     await ctx.send(result)
 
 
