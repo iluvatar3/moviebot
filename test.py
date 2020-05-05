@@ -13,7 +13,7 @@ async def on_ready():
     print('------')
 
 @bot.command()
-async def submit(ctx, movie: string):
+async def submit(ctx, movie: str):
     # submits the movie into the system
     await ctx.send('Movie successfully added '+movie+' added')
 
