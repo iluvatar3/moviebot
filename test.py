@@ -19,6 +19,9 @@ dbuser = config['db']['user']
 dbpass = config['db']['pass']
 dbname = config['db']['name']
 
+# set token
+token = config['discord']['token']
+
 # setup some config
 date = datetime.today().strftime('%Y-%m-%d')
 time = datetime.today().strftime('%H:%M:%S')
@@ -158,8 +161,12 @@ async def list(ctx):
             result = cursor.fetchall()
 
         # get the results
-        for row in result:
-            movielist += "**" + row['username'] + "** submitted **\"" + row['movie'] + "\"** on **" + row['submit_date'].strftime('%a, %b %d')+"**\n"
+        if result is not None:
+            for row in result:
+                movielist += "**" + row['username'] + "** submitted **\"" + row['movie'] + "\"** on **" + row['submit_date'].strftime('%a, %b %w')+"**\n"
+
+        else:
+            movielist += "*No submissions made yet**\n"
 
         # send back success
         await ctx.send(movielist)
@@ -196,4 +203,4 @@ async def help(ctx):
 
 
 # run the bot
-bot.run('NzA3MjYxODkzNDEyMTI2ODEx.XrHPyg.vjHS6VhOnRY9X-9CYwsFWVJqgQY')
+bot.run(token)
