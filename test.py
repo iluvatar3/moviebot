@@ -74,15 +74,15 @@ async def submit(ctx, movie: str):
         # send back success
         await ctx.send(displayname+' successfully submitted "'+movie+'"')
 
-    except pymysql.ProgrammingError:
+    except pymysql.ProgrammingError as e:
         # some sort of programming error
-        await ctx.send("Failed to submit movie, try again later [ProgrammingError]")
-        raise RuntimeError("Failed to submit movie, try again later [ProgrammingError]")
+        await ctx.send("Failed to submit movie, try again later [ProgrammingError: "+format(e)+"]")
+        raise RuntimeError("Failed to submit movie, try again later [ProgrammingError: "+format(e)+"]")
 
-    except pymysql.Error:
+    except pymysql.Error as e:
         # failed to insert
-        await ctx.send("Failed to submit movie, try again later [Error]")
-        raise RuntimeError("Failed to submit movie, try again later [Error]")
+        await ctx.send("Failed to submit movie, try again later [Error: "+format(e)+"]")
+        raise RuntimeError("Failed to submit movie, try again later [Error: "+format(e)+"]")
 
     except Exception as e:
        # generic error
