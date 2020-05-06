@@ -167,18 +167,18 @@ async def list(ctx):
 
     except pymysql.ProgrammingError as e:
         # some sort of programming error
-        await ctx.send("Failed to submit movie, try again later [ProgrammingError: " + format(e) + "]")
-        raise RuntimeError("Failed to submit movie, try again later [ProgrammingError: " + format(e) + "]")
+        await ctx.send("Failed to retrieve current submissions, try again later [ProgrammingError: " + format(e) + "]")
+        raise RuntimeError("Failed to retrieve current submissions, try again later [ProgrammingError: " + format(e) + "]")
 
     except pymysql.Error as e:
         # failed to insert
-        await ctx.send("Failed to submit movie, try again later [Error: " + format(e) + "]")
-        raise RuntimeError("Failed to submit movie, try again later [Error: " + format(e) + "]")
+        await ctx.send("Failed to retrieve current submissions, try again later [Error: " + format(e) + "]")
+        raise RuntimeError("Failed to retrieve current submissions, try again later [Error: " + format(e) + "]")
 
     except Exception as e:
         # generic error
-        await ctx.send("Failed to submit movie, try again later [Exception: " + format(e) + "]")
-        raise RuntimeError("Failed to submit movie, try again later [Exception: " + format(e) + "]")
+        await ctx.send("Failed to retrieve current submissions, try again later [Exception: " + format(e) + "]")
+        raise RuntimeError("Failed to retrieve current submissions, try again later [Exception: " + format(e) + "]")
 
     # connection done
     connection.close()
