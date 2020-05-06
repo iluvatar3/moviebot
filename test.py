@@ -65,7 +65,7 @@ async def submit(ctx, movie: str):
     # add the submission
     try:
         with connection.cursor() as cursor:
-            sql = "INSERT INTO movie_suggestions SET username = '%s', movie = '%s', submit_date = '%s', submit_time = '%s' "
+            sql = "INSERT INTO movie_suggestions SET username = %s, movie = %s, submit_date = %s, submit_time = %s"
             cursor.execute(sql, (displayname, movie, date, time))
 
         # save changes
