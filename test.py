@@ -150,6 +150,8 @@ async def list(ctx):
     # connection done
     connection.close()
 
+    print(startdate)
+    print(enddate)
     await ctx.send("Searching for submissions between "+startdate+" and "+enddate)
 
 
