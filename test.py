@@ -21,7 +21,7 @@ dbname = config['db']['name']
 
 # setup some config
 date = datetime.today().strftime('%Y-%m-%d')
-time = datetime.today().strftime('%H-%M-%S')
+time = datetime.today().strftime('%H:%M:%S')
 
 # setup the bot
 description = 'Weinerman\'s Magical Movie Spin Wheel'
@@ -44,6 +44,8 @@ async def on_ready():
 @bot.command()
 async def submit(ctx, movie: str):
     # submits the movie into the system
+    userid = ctx.message.author.id
+    username = ctx.message.author.name
     displayname = ctx.message.author.display_name
 
     # movie is stored as a string
@@ -65,8 +67,8 @@ async def submit(ctx, movie: str):
     # add the submission
     try:
         with connection.cursor() as cursor:
-            sql = "INSERT INTO movie_suggestions SET username = %s, movie = %s, submit_date = %s, submit_time = %s"
-            cursor.execute(sql, (displayname, movie, date, time))
+            sql = "INSERT INTO movie_suggestions SET username = %s, displayname = %s, user_id = %s, movie = %s, submit_date = %s, submit_time = %s"
+            cursor.execute(sql, (username, displayname, userid, movie, date, time))
 
         # save changes
         connection.commit()
@@ -98,20 +100,97 @@ async def submit(ctx, movie: str):
 @bot.command()
 async def list(ctx):
     # gets the list of current movies
+    movielist = ''
+
+    # connect to db
+    try:
+        # do the connection
+        connection = pymysql.connect(dbhost, dbuser, dbpass, dbname)
+
+    except pymysql.ProgrammingError:
+        # some sort of programming error
+        await ctx.send("Failed to connect to database [ProgrammingError")
+        raise RuntimeError("Create a group of connection parameters under the heading [ProgrammingError]")
+
+    except pymysql.Error:
+        # cant connect to db
+        await ctx.send("Failed to connect to database [Error]")
+        raise RuntimeError("Failed to connect to database [Error]")
+
+    # get the current week
+    startdate = ''
+    enddate = ''
+
+    try:
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            sql = "SELECT * FROM week_list WHERE start_date <= %s AND end_date >= %s LIMIT 1"
+            cursor.execute(sql, (date, date))
+            result = cursor.fetchone()
+
+            if result is not None:
+                startdate = result['start_date']
+                enddate = result['end_date']
+
+    except pymysql.ProgrammingError as e:
+        # some sort of programming error
+        await ctx.send("Failed to retrieve current submissions, try again later [ProgrammingError: "+format(e)+"]")
+        raise RuntimeError("Failed to retrieve current submissions, try again later [ProgrammingError: "+format(e)+"]")
+
+    except pymysql.Error as e:
+        # failed to insert
+        await ctx.send("Failed to retrieve current submissions, try again later [Error: "+format(e)+"]")
+        raise RuntimeError("Failed to retrieve current submissions, try again later [Error: "+format(e)+"]")
+
+    except Exception as e:
+       # generic error
+       await ctx.send("Failed to retrieve current submissions, try again later [Exception: "+format(e)+"]")
+       raise RuntimeError("Failed to retrieve current submissions, try again later [Exception: "+format(e)+"]")
 
 
-    result = 'Here are the current list of movies\nTest 1\nTest 2\nTest 3'
-    await ctx.send(result)
+    # get the weekly submissions
+    try:
+        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
+            sql = "SELECT m1.*, DATE_FORMAT(m1.submit_date, '%W, %M %e') as submitted" \
+                  +" FROM movie_suggestions as m1 WHERE m1.id = (" \
+                  +" SELECT m2.id FROM movie_suggestions as m2 WHERE m2.submit_date between %s and %s" \
+                  +" AND m2.username = m1.username ORDER BY m2.id DESC LIMIT 1 )"
+            cursor.execute(sql, (startdate, enddate))
+            result = cursor.fetchall()
+
+        # get the results
+        for row in result:
+            movielist += "**"+row['username']+"** submitted **\""+row['movie']+"\"** on **"+row['submitted']+"**\n"
+
+        # send back success
+        await ctx.send(movielist)
+
+    except pymysql.ProgrammingError as e:
+        # some sort of programming error
+        await ctx.send("Failed to submit movie, try again later [ProgrammingError: "+format(e)+"]")
+        raise RuntimeError("Failed to submit movie, try again later [ProgrammingError: "+format(e)+"]")
+
+    except pymysql.Error as e:
+        # failed to insert
+        await ctx.send("Failed to submit movie, try again later [Error: "+format(e)+"]")
+        raise RuntimeError("Failed to submit movie, try again later [Error: "+format(e)+"]")
+
+    except Exception as e:
+       # generic error
+       await ctx.send("Failed to submit movie, try again later [Exception: "+format(e)+"]")
+       raise RuntimeError("Failed to submit movie, try again later [Exception: "+format(e)+"]")
+
+    # connection done
+    connection.close()
 
 
 # help command
 @bot.command()
-async def helpme(ctx):
+async def help(ctx):
     # just display this string to show the commands
-    result = 'Sorry you\'re having a hard time with this simple bot, here are the commands\n' \
-             +' -submit "Movie Name" To add a movie to the currently weekly submissions, only your most recent submission is used\n' \
-             +' -list Simply prints out all the current movie suggestions\n' \
-             +' -winner Shows the current winner, updates after 1pm on Tuesdays'
+    result = '__Sorry you\'re having a hard time with this simple bot, here are the commands__\n' \
+             +'**-submit "Movie Name"** To add a movie to the currently weekly submissions, only your most recent submission is used\n' \
+             +'**-list** Simply prints out all the current movie suggestions\n' \
+             +'**-winner** Shows the current winner, updates after 1pm on Tuesdays'
     await ctx.send(result)
 
 
