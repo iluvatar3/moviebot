@@ -154,7 +154,7 @@ async def list(ctx):
                  + " FROM movie_suggestions as m1 WHERE m1.id = (" \
                  + " SELECT m2.id FROM movie_suggestions as m2 WHERE m2.submit_date between %s and %s" \
                  + " AND m2.username = m1.username ORDER BY m2.id DESC LIMIT 1 )"
-            cursor.execute(sql, (startdate, enddate))
+            cursor.execute(sql, (startdate.strftime('%Y-%m-%d'), enddate.strftime('%Y-%m-%d')))
             result = cursor.fetchall()
 
         # get the results
