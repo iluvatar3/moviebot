@@ -147,40 +147,12 @@ async def list(ctx):
        raise RuntimeError("Failed to retrieve current submissions, try again later [Exception: "+format(e)+"]")
 
 
-    # get the weekly submissions
-    try:
-        with connection.cursor(pymysql.cursors.DictCursor) as cursor:
-            sql = "SELECT m1.*, DATE_FORMAT(m1.submit_date, '%W, %M %e') as submitted" \
-                  +" FROM movie_suggestions as m1 WHERE m1.id = (" \
-                  +" SELECT m2.id FROM movie_suggestions as m2 WHERE m2.submit_date between %s and %s" \
-                  +" AND m2.username = m1.username ORDER BY m2.id DESC LIMIT 1 )"
-            cursor.execute(sql, (startdate, enddate))
-            result = cursor.fetchall()
-
-        # get the results
-        for row in result:
-            movielist += "**"+row['username']+"** submitted **\""+row['movie']+"\"** on **"+row['submitted']+"**\n"
-
-        # send back success
-        await ctx.send(movielist)
-
-    except pymysql.ProgrammingError as e:
-        # some sort of programming error
-        await ctx.send("Failed to submit movie, try again later [ProgrammingError: "+format(e)+"]")
-        raise RuntimeError("Failed to submit movie, try again later [ProgrammingError: "+format(e)+"]")
-
-    except pymysql.Error as e:
-        # failed to insert
-        await ctx.send("Failed to submit movie, try again later [Error: "+format(e)+"]")
-        raise RuntimeError("Failed to submit movie, try again later [Error: "+format(e)+"]")
-
-    except Exception as e:
-       # generic error
-       await ctx.send("Failed to submit movie, try again later [Exception: "+format(e)+"]")
-       raise RuntimeError("Failed to submit movie, try again later [Exception: "+format(e)+"]")
-
     # connection done
     connection.close()
+
+    await ctx.send("Searching for submissions between "+startdate+" and "+enddate)
+
+
 
 
 # help command
