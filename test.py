@@ -86,8 +86,8 @@ async def submit(ctx, movie: str):
 
     except Exception as e:
        # generic error
-       await ctx.send("Failed to submit movie, try again later [Exception]")
-       raise RuntimeError("Failed to submit movie, try again later [Exception]")
+       await ctx.send("Failed to submit movie, try again later [Exception: "+format(e)+"]")
+       raise RuntimeError("Failed to submit movie, try again later [Exception: "+format(e)+"]")
 
     finally:
         # connection done
