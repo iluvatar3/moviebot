@@ -86,7 +86,7 @@ async def submit(ctx, movie: str):
 
     finally:
         # connection done
-        connection.close();
+        connection.close()
 
 
 # list command
