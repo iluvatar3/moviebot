@@ -163,7 +163,7 @@ async def list(ctx):
         # get the results
         if result is not None:
             for row in result:
-                movielist += "**" + row['username'] + "** submitted **\"" + row['movie'] + "\"** on **" + row['submit_date'].strftime('%a, %b %w')+"**\n"
+                movielist += "**" + row['username'] + "** submitted **\"" + row['movie'] + "\"** on **" + row['submit_date'].strftime('%a, %b %d')+"**\n"
 
         else:
             movielist += "*No submissions made yet**\n"
