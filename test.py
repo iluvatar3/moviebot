@@ -100,7 +100,7 @@ async def submit(ctx, movie: str):
 @bot.command()
 async def list(ctx):
     # gets the list of current movies
-    movielist = ''
+    movielist = "__Current list of movies__\n"
 
     # connect to db
     try:
@@ -150,7 +150,7 @@ async def list(ctx):
     # get the weekly submissions
     try:
         with connection.cursor(pymysql.cursors.DictCursor) as cursor:
-            sql = "SELECT m1.*, DATE_FORMAT(m1.submit_date, '%W, %M %e') as submitted" \
+            sql = "SELECT m1.*" \
                  + " FROM movie_suggestions as m1 WHERE m1.id = (" \
                  + " SELECT m2.id FROM movie_suggestions as m2 WHERE m2.submit_date between %s and %s" \
                  + " AND m2.username = m1.username ORDER BY m2.id DESC LIMIT 1 )"
@@ -159,7 +159,7 @@ async def list(ctx):
 
         # get the results
         for row in result:
-            movielist += "**" + row['username'] + "** submitted **\"" + row['movie'] + "\"** on **" + row['submitted'] + "**\n"
+            movielist += "**" + row['username'] + "** submitted **\"" + row['movie'] + "\"** on **" + row['submit_date'].strftime('%a, %b %d')+"**\n"
 
         # send back success
         await ctx.send(movielist)
